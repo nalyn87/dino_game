@@ -202,7 +202,7 @@ function gameLoop(currentTime) {
     // 땅이 움직임
     ground.update(gameSpeed, deltaTime);
     // 선인장
-    cactiController.update(gameSpeed, deltaTime);
+    // cactiController.update(gameSpeed, deltaTime);
     itemController.update(gameSpeed, deltaTime);
     // 달리기
     player.update(gameSpeed, deltaTime);

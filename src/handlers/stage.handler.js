@@ -6,7 +6,6 @@ export const moveStageHandler = (userId, payload) => {
   if (!currentStages.length) {
     return { status: 'fail', message: '스테이지가 유저에게 존재하지 않습니다' };
   }
-  console.log(payload);
 
   currentStages.sort((a, b) => a.id - b.id);
   const currentStage = currentStages[currentStages.length - 1];
@@ -18,7 +17,7 @@ export const moveStageHandler = (userId, payload) => {
 
   // 점수 검증
   const serverTime = Date.now();
-  const elapsedTime = (serverTime - currentStage.timestamp) / 1000;
+  const elapsedTime = (serverTime - currentStages[0].timestamp) / 1000;
 
   // 다음 스테이지 검증
   const { stages } = getGameAssets();
@@ -27,7 +26,7 @@ export const moveStageHandler = (userId, payload) => {
   }
 
   // 과제
-  if (elapsedTime < stages.data[currentStages.length].score || elapsedTime > (stages.data[currentStages.length].score + 1)) {
+  if (elapsedTime < stages.data[currentStages.length].score || elapsedTime > stages.data[currentStages.length].score + 1) {
     return {status: 'fail', message: '유효하지 않은 경과 시간입니다'}
   }
 
