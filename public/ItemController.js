@@ -4,7 +4,7 @@ import { stage } from './Score.js';
 
 class ItemController {
   INTERVAL_MIN = 0;
-  INTERVAL_MAX = 1200;
+  INTERVAL_MAX = 12000;
 
   nextInterval = null;
   items = [];
@@ -28,10 +28,8 @@ class ItemController {
   }
 
   createItem() {
-    console.log(stage + 1, '스테이지 아이템');
     const item_ids = itemUnlock.data[stage].item_ids;
     const index = this.getRandomNumber(item_ids[0], item_ids[item_ids.length - 1]);
-    console.log(index)
     const itemInfo = this.itemImages[index - 1];
     const x = this.canvas.width * 1.5;
     const y = this.getRandomNumber(10, this.canvas.height - itemInfo.height);

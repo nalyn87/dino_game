@@ -1,5 +1,6 @@
 import { sendEvent } from './Socket.js';
 import stageData from './assets/stage.json' with { type: 'json' };
+import itemsData from './assets/item.json' with { type: 'json' };
 
 export let stage = 0;
 
@@ -30,7 +31,7 @@ class Score {
   }
 
   getItem(itemId) {
-    this.score += 0;
+    this.score += itemsData.data[itemId - 1].score;
   }
 
   reset() {
