@@ -1,11 +1,12 @@
 import { sendEvent } from './Socket.js';
 import stageData from './assets/stage.json' with { type: 'json' };
 
+export let stage = 0;
+
 class Score {
   score = 0;
   HIGH_SCORE_KEY = 'highScore';
   stageChange = true;
-  stage = 1;
   time = 0;
 
   constructor(ctx, scaleRatio) {
@@ -15,15 +16,16 @@ class Score {
   }
 
   update(deltaTime) {
-    this.score += deltaTime * 0.001 * stageData.data[this.stage - 1].scorePerSecond;
-    this.time += deltaTime * 0.001
-    if (this.stage === 7) {
+    this.score += deltaTime * 0.001 * stageData.data[stage].scorePerSecond;
+    this.time += deltaTime * 0.001;
+    if (stage === 6) {
       return;
     }
     
-    if (Math.floor(this.time) === stageData.data[this.stage].score && this.stageChange) {
-      sendEvent(11, { currentStage: stageData.data[this.stage - 1].id, targetStage: stageData.data[this.stage].id });
-      this.stage++;
+    if (Math.floor(this.time) === stageData.data[stage + 1].score && this.stageChange) {
+      console.log(stage + 1, '스테이지 클리어')
+      sendEvent(11, { currentStage: stageData.data[stage].id, targetStage: stageData.data[stage + 1].id });
+      stage++;
     }
   }
 
