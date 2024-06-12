@@ -31,6 +31,7 @@ class Score {
   }
 
   getItem(itemId) {
+    sendEvent(12,{currentStage: stageData.data[stage].id, itemId, itemScore: itemsData.data[itemId - 1].score})
     this.score += itemsData.data[itemId - 1].score;
   }
 
