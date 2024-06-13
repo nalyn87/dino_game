@@ -3,6 +3,7 @@ import { removeUser, getUser } from '../models/user.model.js';
 import { setStage, getStage, createStage } from '../models/stage.model.js';
 import handlerMappings from './handlerMapping.js';
 import { CLIENT_VERSION } from '../constants.js';
+import { highScore } from '../handlers/score.handler.js';
 
 export const handleDisconnect = (socket, uuid) => {
   removeUser(socket.id);
@@ -17,6 +18,7 @@ export const handleConnection = (socket, uuid) => {
   createStage(uuid);
 
   socket.emit('connection', { uuid });
+  socket.emit('response', highScore);
 };
 
 export const handlerEvent = (io, socket, data) => {
@@ -27,14 +29,14 @@ export const handlerEvent = (io, socket, data) => {
 
   const handler = handlerMappings[data.handlerId];
   if (!handler) {
-    socket.emit('response', { status: 'fail', message: '헨들러가 존재하지 않습니다' });
+    socket.emit('response', { status: 'fail', message: '핸들러가 존재하지 않습니다' });
     return;
   }
 
   const response = handler(data.userId, data.payload);
-
   if (response.broadcast) {
-    io.emit('response', 'broadcast');
+    const highScore = response.broadcast;
+    io.emit('broadcast', highScore);
     return;
   }
   socket.emit('response', response);

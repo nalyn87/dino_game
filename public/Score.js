@@ -1,12 +1,16 @@
-import { sendEvent } from './Socket.js';
+import { sendEvent, socket } from './Socket.js';
 import stageData from './assets/stage.json' with { type: 'json' };
 import itemsData from './assets/item.json' with { type: 'json' };
+import itemUnlocks from './assets/item_unlock.json' with { type: 'json' };
 
 export let stage = 0;
+let highScore = 0;
+socket.on('broadcast', (data) => {
+  highScore = data;
+});
 
 class Score {
   score = 0;
-  HIGH_SCORE_KEY = 'highScore';
   stageChange = true;
   time = 0;
 
@@ -22,27 +26,43 @@ class Score {
     if (stage === 6) {
       return;
     }
-    
+
     if (Math.floor(this.time) === stageData.data[stage + 1].score && this.stageChange) {
-      console.log(stage + 1, '스테이지 클리어')
-      sendEvent(11, { currentStage: stageData.data[stage].id, targetStage: stageData.data[stage + 1].id });
+      console.log(stage + 1, '스테이지 클리어');
+      sendEvent(11, {
+        currentStage: stageData.data[stage].id,
+        targetStage: stageData.data[stage + 1].id,
+      });
       stage++;
     }
   }
 
   getItem(itemId) {
-    sendEvent(12,{currentStage: stageData.data[stage].id, itemId, itemScore: itemsData.data[itemId - 1].score})
-    this.score += itemsData.data[itemId - 1].score;
+    const currentStage = stageData.data[stage].id;
+
+    sendEvent(12, {
+      currentStage,
+      itemId,
+      itemScore: itemsData.data[itemId - 1].score,
+    });
+    if (
+      !itemUnlocks.data.some(
+        (data) => data.stage_id === currentStage && data.item_ids.some((item) => item === itemId),
+      )
+    ) {
+      return { status: 'fail', message: '해당 스테이지에서 해금되지 않은 아이템입니다' };
+    } else this.score += itemsData.data[itemId - 1].score;
   }
 
   reset() {
     this.score = 0;
+    this.time = 0;
+    stage = 0;
   }
 
   setHighScore() {
-    const highScore = Number(localStorage.getItem(this.HIGH_SCORE_KEY));
     if (this.score > highScore) {
-      localStorage.setItem(this.HIGH_SCORE_KEY, Math.floor(this.score));
+      sendEvent(13, { score: this.score });
     }
   }
 
@@ -51,7 +71,6 @@ class Score {
   }
 
   draw() {
-    const highScore = Number(localStorage.getItem(this.HIGH_SCORE_KEY));
     const y = 20 * this.scaleRatio;
 
     const fontSize = 20 * this.scaleRatio;
